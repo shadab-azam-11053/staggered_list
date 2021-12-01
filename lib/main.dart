@@ -20,6 +20,7 @@ class Model {
 }
 
 class _MyAppState extends State<MyApp> {
+  int i = 8;
   @override
   Widget build(BuildContext context) {
     List<Model> list = [
@@ -61,7 +62,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Custom Staggered GridView'),
         ),
         // body: listView(staggered),
-        body: staggered(list, 'dd'),
+        body: staggered(list, list[i].type),
       ),
     );
   }

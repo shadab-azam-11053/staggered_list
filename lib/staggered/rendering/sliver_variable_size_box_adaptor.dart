@@ -221,19 +221,11 @@ abstract class RenderSliverVariableSizeBoxAdaptor extends RenderSliver
     final childParentData =
         child.parentData! as SliverVariableSizeBoxAdaptorParentData;
     if (!childParentData._keptAlive) {
-      super.remove(index);
       return;
     }
     assert(_keepAliveBucket[childParentData.index!] == child);
     _keepAliveBucket.remove(childParentData.index);
     dropChild(child);
-  }
-
-  @override
-  void removeAll() {
-    super.removeAll();
-    _keepAliveBucket.values.forEach(dropChild);
-    _keepAliveBucket.clear();
   }
 
   void _createOrObtainChild(int index) {
@@ -253,24 +245,6 @@ abstract class RenderSliverVariableSizeBoxAdaptor extends RenderSliver
       }
     });
   }
-
-  /* void _destroyOrCacheChild(int index) {
-    final RenderBox child = this[index]!;
-    final childParentData =
-        child.parentData! as SliverVariableSizeBoxAdaptorParentData;
-    if (childParentData.keepAlive) {
-      assert(!childParentData._keptAlive);
-      remove(index);
-      _keepAliveBucket[childParentData.index!] = child;
-      child.parentData = childParentData;
-      super.adoptChild(child);
-      childParentData._keptAlive = true;
-    } else {
-      assert(child.parent == this);
-      _childManager.removeChild(child);
-      assert(child.parent == null);
-    }
-  }*/
 
   @override
   void attach(PipelineOwner owner) {
@@ -296,18 +270,6 @@ abstract class RenderSliverVariableSizeBoxAdaptor extends RenderSliver
     _keepAliveBucket.values.forEach(visitor);
   }
 
-  bool addChild(int index) {
-    assert(_debugAssertChildListLocked());
-    _createOrObtainChild(index);
-    final child = this[index];
-    if (child != null) {
-      assert(indexOf(child) == index);
-      return true;
-    }
-    childManager.setDidUnderflow(true);
-    return false;
-  }
-
   RenderBox? addAndLayoutChild(
     int index,
     BoxConstraints childConstraints, {
@@ -327,40 +289,11 @@ abstract class RenderSliverVariableSizeBoxAdaptor extends RenderSliver
 
   /// Called after layout with the number of children that can be garbage
   /// collected at the head and tail of the child staggered.
-  ///
   /// Children whose [SliverVariableSizeBoxAdaptorParentData.keepAlive] property is
   /// set to true will be removed to a cache instead of being dropped.
-  ///
   /// This method also collects any children that were previously kept alive but
   /// are now no longer necessary. As such, it should be called every time
   /// [performLayout] is run, even if the arguments are both zero.
-  @protected
-  void collectGarbage(Set<int> visibleIndices) {
-    assert(_debugAssertChildListLocked());
-    assert(childCount >= visibleIndices.length);
-    invokeLayoutCallback<SliverConstraints>((SliverConstraints constraints) {
-      // We destroy only those which are not visible.
-      // indices.toSet().difference(visibleIndices).forEach(_destroyOrCacheChild);
-
-      // Ask the child manager to remove the children that are no longer being
-      // kept alive. (This should cause _keepAliveBucket to change, so we have
-      // to prepare our staggered ahead of time.)
-      _keepAliveBucket.values
-          .where((RenderBox child) {
-            final childParentData =
-                child.parentData! as SliverVariableSizeBoxAdaptorParentData;
-            return !childParentData.keepAlive;
-          })
-          .toList()
-          .forEach(_childManager.removeChild);
-      assert(_keepAliveBucket.values.where((RenderBox child) {
-        final childParentData =
-            child.parentData! as SliverVariableSizeBoxAdaptorParentData;
-        return !childParentData.keepAlive;
-      }).isEmpty);
-    });
-  }
-
   /// Returns the index of the given child, as given by the
   /// [SliverVariableSizeBoxAdaptorParentData.index] field of the child's [parentData].
   int indexOf(RenderBox child) {
@@ -382,19 +315,6 @@ abstract class RenderSliverVariableSizeBoxAdaptor extends RenderSliver
         return child.size.height;
     }
   }
-
-  /* @override
-  bool hitTestChildren(HitTestResult result,
-      {required double mainAxisPosition, required double crossAxisPosition}) {
-    for (final child in children) {
-      if (hitTestBoxChild(BoxHitTestResult.wrap(result), child,
-          mainAxisPosition: mainAxisPosition,
-          crossAxisPosition: crossAxisPosition)) {
-        return true;
-      }
-    }
-    return false;
-  }*/
 
   @override
   double childMainAxisPosition(RenderBox child) {
@@ -475,36 +395,5 @@ abstract class RenderSliverVariableSizeBoxAdaptor extends RenderSliver
       }
       context.paintChild(child, childOffset);
     }
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsNode.message(childCount > 0
-        ? 'currently live children: ${indices.join(',')}'
-        : 'no children current live'));
-  }
-
-  @override
-  List<DiagnosticsNode> debugDescribeChildren() {
-    final List<DiagnosticsNode> childList = <DiagnosticsNode>[];
-    if (childCount > 0) {
-      for (final child in children) {
-        final childParentData =
-            child.parentData! as SliverVariableSizeBoxAdaptorParentData;
-        childList.add(child.toDiagnosticsNode(
-            name: 'child with index ${childParentData.index}'));
-      }
-    }
-    if (_keepAliveBucket.isNotEmpty) {
-      final List<int> indices = _keepAliveBucket.keys.toList()..sort();
-      for (final index in indices) {
-        childList.add(_keepAliveBucket[index]!.toDiagnosticsNode(
-          name: 'child with index $index (kept alive offstage)',
-          style: DiagnosticsTreeStyle.offstage,
-        ));
-      }
-    }
-    return childList;
   }
 }

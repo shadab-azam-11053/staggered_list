@@ -17,12 +17,6 @@ class StaggeredTile {
 
   /// Creates a [StaggeredTile] with the given [crossAxisCellCount] and
   /// [mainAxisExtent].
-  ///
-  /// This tile will have a fixed main axis extent.
-  // const StaggeredTile.extent(this.crossAxisCellCount, this.mainAxisExtent)
-  //     : assert(crossAxisCellCount >= 0),
-  //       assert(mainAxisExtent != null && mainAxisExtent >= 0),
-  //       mainAxisCellCount = null;
 
   /// Creates a [StaggeredTile] with the given [crossAxisCellCount] that
   /// fit its main axis extent to its content.

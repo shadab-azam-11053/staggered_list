@@ -53,7 +53,7 @@ mixin TileContainerRenderObjectMixin<ChildType extends RenderObject,
     if (index < 0) {
       throw ArgumentError(index);
     }
-    _removeChild(_childRenderObjects[index]);
+
     adoptChild(child);
     _childRenderObjects[index] = child;
   }
@@ -62,54 +62,8 @@ mixin TileContainerRenderObjectMixin<ChildType extends RenderObject,
     _childRenderObjects.values.forEach(f);
   }
 
-  /// Remove the child at the specified index from the child staggered.
-  void remove(int index) {
-    final child = _childRenderObjects.remove(index);
-    _removeChild(child);
-  }
-
-  void _removeChild(ChildType? child) {
-    if (child != null) {
-      // Remove the old child.
-      dropChild(child);
-    }
-  }
-
-  /// Remove all their children from this render object's child staggered.
-  ///
-  /// More efficient than removing them individually.
-  void removeAll() {
-    _childRenderObjects.values.forEach(dropChild);
-    _childRenderObjects.clear();
-  }
-
-  @override
-  void attach(PipelineOwner owner) {
-    super.attach(owner);
-    _childRenderObjects.values.forEach((child) => child.attach(owner));
-  }
-
-  @override
-  void detach() {
-    super.detach();
-    _childRenderObjects.values.forEach((child) => child.detach());
-  }
-
-  @override
-  void redepthChildren() {
-    _childRenderObjects.values.forEach(redepthChild);
-  }
-
   @override
   void visitChildren(RenderObjectVisitor visitor) {
     _childRenderObjects.values.forEach(visitor);
-  }
-
-  @override
-  List<DiagnosticsNode> debugDescribeChildren() {
-    final List<DiagnosticsNode> children = <DiagnosticsNode>[];
-    _childRenderObjects.forEach((index, child) =>
-        children.add(child.toDiagnosticsNode(name: 'child $index')));
-    return children;
   }
 }

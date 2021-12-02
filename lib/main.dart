@@ -20,8 +20,7 @@ class Model {
 }
 
 class _MyAppState extends State<MyApp> {
-  int i = 2;
-  int position = -1;
+  int position = 2;
 
   List<int> intArr = [];
   @override
@@ -31,28 +30,28 @@ class _MyAppState extends State<MyApp> {
       Model(name: 'B', type: 'bb'),
       Model(name: 'C', type: 'cc'),
       Model(name: 'D', type: 'dd'),
-      Model(name: 'E', type: 'ee'),
-      Model(name: 'F', type: 'cc'),
+      Model(name: 'E', type: 'cc'),
+      Model(name: 'F', type: 'ff'),
       Model(name: 'G', type: 'gg'),
-      Model(name: 'H', type: 'hh'),
+      Model(name: 'H', type: 'cc'),
       Model(name: 'I', type: 'ii'),
       Model(name: 'J', type: 'jj'),
-      Model(name: 'K', type: 'kk'),
-      Model(name: 'L', type: 'll'),
-      Model(name: 'M', type: 'mm'),
-      Model(name: 'N', type: 'nn'),
-      Model(name: 'O', type: 'oo'),
-      Model(name: 'P', type: 'pp'),
-      Model(name: 'Q', type: 'qq'),
-      Model(name: 'R', type: 'rr'),
-      Model(name: 'S', type: 'ss'),
-      Model(name: 'T', type: 'tt'),
-      Model(name: 'U', type: 'uu'),
-      Model(name: 'V', type: 'vv'),
-      Model(name: 'W', type: 'ww'),
-      Model(name: 'X', type: 'xx'),
-      Model(name: 'Y', type: 'yy'),
-      Model(name: 'Z', type: 'zz'),
+      // Model(name: 'K', type: 'kk'),
+      // Model(name: 'L', type: 'll'),
+      // Model(name: 'M', type: 'mm'),
+      // Model(name: 'N', type: 'nn'),
+      // Model(name: 'O', type: 'oo'),
+      // Model(name: 'P', type: 'pp'),
+      // Model(name: 'Q', type: 'qq'),
+      // Model(name: 'R', type: 'rr'),
+      // Model(name: 'S', type: 'ss'),
+      // Model(name: 'T', type: 'tt'),
+      // Model(name: 'U', type: 'uu'),
+      // Model(name: 'V', type: 'vv'),
+      // Model(name: 'W', type: 'ww'),
+      // Model(name: 'X', type: 'xx'),
+      // Model(name: 'Y', type: 'yy'),
+      // Model(name: 'Z', type: 'zz'),
     ];
 
     return MaterialApp(
@@ -63,41 +62,49 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Custom Staggered GridView'),
         ),
         // body: listView(staggered),
-        body: staggered(list: list, type: list[i].type),
+        body: staggered(list: list, type: list[position].type),
       ),
     );
   }
 
+  void replace(list, i) {
+    Model model = list[i];
+    list.remove(model);
+    list.insert(i + 1, model);
+    intArr.add(i + 1);
+  }
+
   Widget staggered({required List<Model> list, required String type}) {
-    if (list[list.length - 1].type == type) {
-      Model model = list[list.length - 1];
-      list.remove(model);
-      list.insert(list.length - 2, model);
+    for (int i = 0; i < list.length; i++) {
+      if (list[i].type == type) {
+        if (intArr.isEmpty || intArr.length % 2 == 0) {
+          if (i % 2 != 0) {
+            replace(list, i);
+          } else {
+            intArr.add(i);
+          }
+        } else if (intArr.length % 2 != 0) {
+          if (i % 2 == 0) {
+            replace(list, i);
+          } else {
+            intArr.add(i);
+          }
+        }
+      }
+
+      print(intArr.length);
+    }
+
+    for (int i = 0; i < list.length; i++) {
+      if (list[i].type == type) {
+        intArr.add(i);
+      }
     }
     return StaggeredGridView.countBuilder(
       crossAxisCount: 2,
       itemBuilder: (BuildContext context, int index) {
-        /* if (index == list.length - 3 &&  list[list.length - 1].type == type) {
-          Model model = list[list.length - 1];
-          list.remove(model);
-          list.insert(list.length - 2, model);
-        }*/
-        if (list[index].type == type) {
-          if (index % 2 == 0) {
-            position = index;
-            intArr.add(position);
-            return typeView(list[index]);
-          } else {
-            position = index + 1;
-            if (position < list.length) {
-              Model model = list[index];
-              list.remove(model);
-              list.insert(position, model);
-            } else {
-              position == index;
-            }
-            return commonView(list[index]);
-          }
+        if (intArr.contains(index)) {
+          return typeView(list[index]);
         } else {
           return commonView(list[index]);
         }
@@ -128,15 +135,5 @@ class _MyAppState extends State<MyApp> {
         color: Colors.red,
         height: 100,
         child: Center(child: Text(model.name)));
-  }
-
-  void move<T>(List<T> list, int oldIndex, int newIndex) {
-    var item = list[oldIndex];
-    list.removeAt(oldIndex);
-
-    if (newIndex > oldIndex) newIndex--;
-    // the actual index could have shifted due to the removal
-
-    list.insert(newIndex, item);
   }
 }

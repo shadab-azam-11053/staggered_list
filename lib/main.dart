@@ -20,7 +20,10 @@ class Model {
 }
 
 class _MyAppState extends State<MyApp> {
-  int i = 8;
+  int i = 2;
+  int position = -1;
+
+  List<int> intArr = [];
   @override
   Widget build(BuildContext context) {
     List<Model> list = [
@@ -29,7 +32,7 @@ class _MyAppState extends State<MyApp> {
       Model(name: 'C', type: 'cc'),
       Model(name: 'D', type: 'dd'),
       Model(name: 'E', type: 'ee'),
-      Model(name: 'F', type: 'ff'),
+      Model(name: 'F', type: 'cc'),
       Model(name: 'G', type: 'gg'),
       Model(name: 'H', type: 'hh'),
       Model(name: 'I', type: 'ii'),
@@ -43,8 +46,6 @@ class _MyAppState extends State<MyApp> {
       Model(name: 'Q', type: 'qq'),
       Model(name: 'R', type: 'rr'),
       Model(name: 'S', type: 'ss'),
-      Model(name: 'T', type: 'tt'),
-      Model(name: 'U', type: 'uu'),
       Model(name: 'T', type: 'tt'),
       Model(name: 'U', type: 'uu'),
       Model(name: 'V', type: 'vv'),
@@ -62,22 +63,46 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Custom Staggered GridView'),
         ),
         // body: listView(staggered),
-        body: staggered(list, list[i].type),
+        body: staggered(list: list, type: list[i].type),
       ),
     );
   }
 
-  Widget staggered(List<Model> list, String type) {
+  Widget staggered({required List<Model> list, required String type}) {
+    if (list[list.length - 1].type == type) {
+      Model model = list[list.length - 1];
+      list.remove(model);
+      list.insert(list.length - 2, model);
+    }
     return StaggeredGridView.countBuilder(
       crossAxisCount: 2,
       itemBuilder: (BuildContext context, int index) {
+        /* if (index == list.length - 3 &&  list[list.length - 1].type == type) {
+          Model model = list[list.length - 1];
+          list.remove(model);
+          list.insert(list.length - 2, model);
+        }*/
         if (list[index].type == type) {
-          return typeView(list[index]);
+          if (index % 2 == 0) {
+            position = index;
+            intArr.add(position);
+            return typeView(list[index]);
+          } else {
+            position = index + 1;
+            if (position < list.length) {
+              Model model = list[index];
+              list.remove(model);
+              list.insert(position, model);
+            } else {
+              position == index;
+            }
+            return commonView(list[index]);
+          }
         } else {
           return commonView(list[index]);
         }
       },
-      staggeredTileBuilder: (int index) => list[index].type == type
+      staggeredTileBuilder: (int index) => intArr.contains(index)
           ? const StaggeredTile.fit(2)
           : const StaggeredTile.fit(1),
       mainAxisSpacing: 4.0,
@@ -103,5 +128,15 @@ class _MyAppState extends State<MyApp> {
         color: Colors.red,
         height: 100,
         child: Center(child: Text(model.name)));
+  }
+
+  void move<T>(List<T> list, int oldIndex, int newIndex) {
+    var item = list[oldIndex];
+    list.removeAt(oldIndex);
+
+    if (newIndex > oldIndex) newIndex--;
+    // the actual index could have shifted due to the removal
+
+    list.insert(newIndex, item);
   }
 }

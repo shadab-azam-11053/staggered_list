@@ -33,25 +33,9 @@ class _MyAppState extends State<MyApp> {
       Model(name: 'E', type: 'cc'),
       Model(name: 'F', type: 'ff'),
       Model(name: 'G', type: 'gg'),
-      Model(name: 'H', type: 'cc'),
+      Model(name: 'H', type: 'hh'),
       Model(name: 'I', type: 'ii'),
       Model(name: 'J', type: 'jj'),
-      // Model(name: 'K', type: 'kk'),
-      // Model(name: 'L', type: 'll'),
-      // Model(name: 'M', type: 'mm'),
-      // Model(name: 'N', type: 'nn'),
-      // Model(name: 'O', type: 'oo'),
-      // Model(name: 'P', type: 'pp'),
-      // Model(name: 'Q', type: 'qq'),
-      // Model(name: 'R', type: 'rr'),
-      // Model(name: 'S', type: 'ss'),
-      // Model(name: 'T', type: 'tt'),
-      // Model(name: 'U', type: 'uu'),
-      // Model(name: 'V', type: 'vv'),
-      // Model(name: 'W', type: 'ww'),
-      // Model(name: 'X', type: 'xx'),
-      // Model(name: 'Y', type: 'yy'),
-      // Model(name: 'Z', type: 'zz'),
     ];
 
     return MaterialApp(
@@ -68,20 +52,22 @@ class _MyAppState extends State<MyApp> {
   }
 
   void replace(list, i) {
-    Model model = list[i];
-    list.remove(model);
-    list.insert(i + 1, model);
-    intArr.add(i + 1);
+    if (i < list.length - 2) {
+      Model model = list[i];
+      list.remove(model);
+      list.insert(i + 1, model);
+      intArr.add(i + 1);
+    }
   }
 
   Widget staggered({required List<Model> list, required String type}) {
     for (int i = 0; i < list.length; i++) {
       if (list[i].type == type) {
         if (intArr.isEmpty || intArr.length % 2 == 0) {
-          if (i % 2 != 0) {
-            replace(list, i);
-          } else {
+          if (i % 2 == 0) {
             intArr.add(i);
+          } else {
+            replace(list, i);
           }
         } else if (intArr.length % 2 != 0) {
           if (i % 2 == 0) {
@@ -92,7 +78,7 @@ class _MyAppState extends State<MyApp> {
         }
       }
 
-      print(intArr.length);
+      print(intArr);
     }
 
     for (int i = 0; i < list.length; i++) {

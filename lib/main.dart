@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Product? product;
 
-  void _incrementCounter() {
+  void _manageGridPlace() {
     _mod = 0;
     for (var i = 0; i < productList.length; i++) {
       Product product = productList[i];
@@ -146,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget staggered({required List<Product> list}) {
-    _incrementCounter();
+    _manageGridPlace();
     return StaggeredGridView.countBuilder(
       crossAxisCount: _counter,
       itemBuilder: (BuildContext context, int index) {

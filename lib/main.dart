@@ -7,66 +7,66 @@ void main() {
 }
 
 class Product {
-  final int id;
-  final bool isExpanded;
+  final String name;
+  final String type;
   Product({
-    required this.id,
-    required this.isExpanded,
+    required this.name,
+    required this.type,
   });
 }
 
 List<Product> productList = [
   Product(
-    id: 0,
-    isExpanded: true,
+    name: '0',
+    type: 'component',
   ),
   Product(
-    id: 1,
-    isExpanded: false,
+    name: '1',
+    type: 'component',
   ),
   Product(
-    id: 2,
-    isExpanded: true,
+    name: '2',
+    type: 'ads',
   ),
   Product(
-    id: 3,
-    isExpanded: false,
+    name: '3',
+    type: 'component',
   ),
   Product(
-    id: 4,
-    isExpanded: false,
+    name: '4',
+    type: 'component',
   ),
   Product(
-    id: 5,
-    isExpanded: true,
+    name: '5',
+    type: 'ads',
   ),
   Product(
-    id: 6,
-    isExpanded: false,
+    name: '6',
+    type: 'component',
   ),
   Product(
-    id: 7,
-    isExpanded: false,
+    name: '7',
+    type: 'component',
   ),
   Product(
-    id: 8,
-    isExpanded: false,
+    name: '8',
+    type: 'component',
   ),
   Product(
-    id: 9,
-    isExpanded: false,
+    name: '9',
+    type: 'component',
   ),
   Product(
-    id: 10,
-    isExpanded: false,
+    name: '10',
+    type: 'component',
   ),
   Product(
-    id: 11,
-    isExpanded: false,
+    name: '11',
+    type: 'component',
   ),
   Product(
-    id: 12,
-    isExpanded: false,
+    name: '12',
+    type: 'component',
   ),
 ];
 
@@ -104,19 +104,18 @@ class _MyHomePageState extends State<MyHomePage> {
     for (var i = 0; i < productList.length; i++) {
       Product product = productList[i];
       _mod++;
-      if (productList[i].isExpanded == true) {
+      if (productList[i].type == 'ads') {
         if (_mod == _counter) {
           if (productList.length - 2 <= i) {
             productList[i] = productList[i - 1];
             productList[i - 1] = product;
-            if (productList.length == i &&
-                productList[i + 1].isExpanded == true) {
+            if (productList.length == i && productList[i + 1].type == 'ads') {
               product = productList[i];
               productList[i] = productList[i + 1];
               productList[i + 1] = product;
             }
           } else {
-            if (productList[i + 1].isExpanded == true) {
+            if (productList[i + 1].type == 'ads') {
               productList[i] = productList[i + 2];
               productList[i + 2] = product;
               setState(() {});
@@ -151,13 +150,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return StaggeredGridView.countBuilder(
       crossAxisCount: _counter,
       itemBuilder: (BuildContext context, int index) {
-        if (list[index].isExpanded) {
-          return typeView(list[index]);
+        if (list[index].type == 'ads') {
+          return adsView(list[index]);
         } else {
           return commonView(list[index]);
         }
       },
-      staggeredTileBuilder: (int index) => list[index].isExpanded
+      staggeredTileBuilder: (int index) => list[index].type == 'ads'
           ? const StaggeredTile.fit(2)
           : const StaggeredTile.fit(1),
       mainAxisSpacing: 4.0,
@@ -169,14 +168,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget typeView(Product product) {
+  Widget adsView(Product product) {
     return Container(
       height: 100,
       color: Colors.red,
       child: Center(
-        child: CircleAvatar(
-          backgroundColor: product.isExpanded ? Colors.white : Colors.yellow,
-          child: Text(product.id.toString()),
+        child: Text(
+          product.name,
+          style: const TextStyle(
+              color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -187,9 +187,10 @@ class _MyHomePageState extends State<MyHomePage> {
       height: 100,
       color: Colors.white,
       child: Center(
-        child: CircleAvatar(
-          backgroundColor: product.isExpanded ? Colors.white : Colors.yellow,
-          child: Text(product.id.toString()),
+        child: Text(
+          product.name,
+          style: const TextStyle(
+              color: Colors.black, fontSize: 30, fontWeight: FontWeight.bold),
         ),
       ),
     );

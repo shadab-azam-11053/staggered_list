@@ -3,99 +3,161 @@ import 'package:staggered_list/staggered/widgets/staggered_grid_view.dart';
 import 'package:staggered_list/staggered/widgets/staggered_tile.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  MyApp({Key? key}) : super(key: key);
-
-  @override
-  State<MyApp> createState() => _MyAppState();
+class Product {
+  final int id;
+  final bool isExpanded;
+  Product({
+    required this.id,
+    required this.isExpanded,
+  });
 }
 
-class Model {
-  String name;
-  String type;
-  Model({required this.name, required this.type});
-}
+List<Product> productList = [
+  Product(
+    id: 0,
+    isExpanded: true,
+  ),
+  Product(
+    id: 1,
+    isExpanded: false,
+  ),
+  Product(
+    id: 2,
+    isExpanded: true,
+  ),
+  Product(
+    id: 3,
+    isExpanded: false,
+  ),
+  Product(
+    id: 4,
+    isExpanded: false,
+  ),
+  Product(
+    id: 5,
+    isExpanded: true,
+  ),
+  Product(
+    id: 6,
+    isExpanded: false,
+  ),
+  Product(
+    id: 7,
+    isExpanded: false,
+  ),
+  Product(
+    id: 8,
+    isExpanded: false,
+  ),
+  Product(
+    id: 9,
+    isExpanded: false,
+  ),
+  Product(
+    id: 10,
+    isExpanded: false,
+  ),
+  Product(
+    id: 11,
+    isExpanded: false,
+  ),
+  Product(
+    id: 12,
+    isExpanded: false,
+  ),
+];
 
-class _MyAppState extends State<MyApp> {
-  int position = 2;
-
-  List<int> intArr = [];
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    List<Model> list = [
-      Model(name: 'A', type: 'aa'),
-      Model(name: 'B', type: 'bb'),
-      Model(name: 'C', type: 'cc'),
-      Model(name: 'D', type: 'dd'),
-      Model(name: 'E', type: 'cc'),
-      Model(name: 'F', type: 'ff'),
-      Model(name: 'G', type: 'gg'),
-      Model(name: 'H', type: 'hh'),
-      Model(name: 'I', type: 'ii'),
-      Model(name: 'J', type: 'jj'),
-    ];
-
     return MaterialApp(
       title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Custom Staggered GridView'),
-        ),
-        // body: listView(staggered),
-        body: staggered(list: list, type: list[position].type),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
+      home: const MyHomePage(title: 'Staggered List'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final int _counter = 2;
+  int _mod = 0;
+
+  Product? product;
+
+  void _incrementCounter() {
+    _mod = 0;
+    for (var i = 0; i < productList.length; i++) {
+      Product product = productList[i];
+      _mod++;
+      if (productList[i].isExpanded == true) {
+        if (_mod == _counter) {
+          if (productList.length - 2 <= i) {
+            productList[i] = productList[i - 1];
+            productList[i - 1] = product;
+            if (productList.length == i &&
+                productList[i + 1].isExpanded == true) {
+              product = productList[i];
+              productList[i] = productList[i + 1];
+              productList[i + 1] = product;
+            }
+          } else {
+            if (productList[i + 1].isExpanded == true) {
+              productList[i] = productList[i + 2];
+              productList[i + 2] = product;
+              setState(() {});
+              i++;
+            } else {
+              productList[i] = productList[i + 1];
+              productList[i + 1] = product;
+            }
+          }
+        }
+        _mod = 0;
+      } else {
+        if (_mod == _counter) {
+          _mod = 0;
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: staggered(list: productList),
     );
   }
 
-  void replace(list, i) {
-    if (i < list.length - 2) {
-      Model model = list[i];
-      list.remove(model);
-      list.insert(i + 1, model);
-      intArr.add(i + 1);
-    }
-  }
-
-  Widget staggered({required List<Model> list, required String type}) {
-    for (int i = 0; i < list.length; i++) {
-      if (list[i].type == type) {
-        if (intArr.isEmpty || intArr.length % 2 == 0) {
-          if (i % 2 == 0) {
-            intArr.add(i);
-          } else {
-            replace(list, i);
-          }
-        } else if (intArr.length % 2 != 0) {
-          if (i % 2 == 0) {
-            replace(list, i);
-          } else {
-            intArr.add(i);
-          }
-        }
-      }
-
-      print(intArr);
-    }
-
-    for (int i = 0; i < list.length; i++) {
-      if (list[i].type == type) {
-        intArr.add(i);
-      }
-    }
+  Widget staggered({required List<Product> list}) {
+    _incrementCounter();
     return StaggeredGridView.countBuilder(
-      crossAxisCount: 2,
+      crossAxisCount: _counter,
       itemBuilder: (BuildContext context, int index) {
-        if (intArr.contains(index)) {
+        if (list[index].isExpanded) {
           return typeView(list[index]);
         } else {
           return commonView(list[index]);
         }
       },
-      staggeredTileBuilder: (int index) => intArr.contains(index)
+      staggeredTileBuilder: (int index) => list[index].isExpanded
           ? const StaggeredTile.fit(2)
           : const StaggeredTile.fit(1),
       mainAxisSpacing: 4.0,
@@ -107,19 +169,29 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget commonView(Model model) {
+  Widget typeView(Product product) {
     return Container(
-        margin: const EdgeInsets.all(5),
-        color: Colors.blue,
-        height: 100,
-        child: Center(child: Text(model.name)));
+      height: 100,
+      color: Colors.red,
+      child: Center(
+        child: CircleAvatar(
+          backgroundColor: product.isExpanded ? Colors.white : Colors.yellow,
+          child: Text(product.id.toString()),
+        ),
+      ),
+    );
   }
 
-  Widget typeView(Model model) {
+  Widget commonView(Product product) {
     return Container(
-        margin: const EdgeInsets.all(5),
-        color: Colors.red,
-        height: 100,
-        child: Center(child: Text(model.name)));
+      height: 100,
+      color: Colors.white,
+      child: Center(
+        child: CircleAvatar(
+          backgroundColor: product.isExpanded ? Colors.white : Colors.yellow,
+          child: Text(product.id.toString()),
+        ),
+      ),
+    );
   }
 }
